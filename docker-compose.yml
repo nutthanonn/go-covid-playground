@@ -1,0 +1,36 @@
+version: "3"
+services:
+  server:
+    container_name: "go-server"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - database
+    volumes:
+      - .:/go/src/github.com/nutthanon/go-nosql
+    networks:
+      - my-network
+
+  database:
+    image: mongo:latest
+    container_name: "database"
+    restart: always
+    ports:
+      - 8001:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=go-nosql
+      - MONGO_INITDB_USERNAME=nutthanon
+      - MONGO_INITDB_PASSWORD=password
+    volumes:
+      - ./init-mongosh.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+      - ./db:/data/db
+    networks:
+      - my-network
+networks:
+  my-network:
+    driver: bridge
